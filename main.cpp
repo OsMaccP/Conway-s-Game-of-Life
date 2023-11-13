@@ -10,24 +10,33 @@ int main()
     window1.setVerticalSyncEnabled(true);
 
 
-    const int verticaCellNum = 32;
-    const int horizontalCellNum = 48;
+    const int horizontalCellNum = 90; //if I set the number of cells to 96 or any other number that makes CellDix_X not an integer, then the exe won't run
+    const int verticaCellNum = 60;
+    // windowWidth / horizontalCellNum = windowHeight / verticalCellNum = constant --> 1200 / horizontalCellNum = 800 / verticalCellNum --> if one of these two numbers is given, the other is automatically set.
+    // --> 1200/800 * given verticalCellNum = horizontalCellNum, try whit integer until result is integer. Only works if the given value meets 800 % vCN --> 1200 % hCN = 0.
+    // Dividers of 800 --> 1, 2, 4, 5, 8, 10, 16, 20, 25, 32, 40, 50, 80, 100, 160, 200, 400 y 800. Why does not work using this hypotesis?
+    const float CellDim_X = static_cast<float>(windowWidth) / static_cast<float>(horizontalCellNum);
+    const float CellDim_Y = static_cast<float>(windowHeight) / static_cast<float>(verticaCellNum);
 
     std::array<std::array<sf::RectangleShape, verticaCellNum>, horizontalCellNum> square;
     std::array<std::array<sf::FloatRect, verticaCellNum>, horizontalCellNum> boundingBox;
     for(int j = 0; j < verticaCellNum; j++) {
         for(int i = 0; i < horizontalCellNum; i++) {
-            square[i][j].setSize(sf::Vector2f(float(windowHeight) / float(verticaCellNum), float(windowWidth) / float(horizontalCellNum)));
+            square[i][j].setSize(sf::Vector2f(CellDim_X, CellDim_Y));
             square[i][j].setFillColor(sf::Color::Black);
             square[i][j].setOutlineThickness(-1.f);
-            square[i][j].setOutlineColor(sf::Color::Red);
+            square[i][j].setOutlineColor(sf::Color(37, 80, 40));
 
-            square[i][j].setPosition(i * (float(windowHeight) / float(verticaCellNum)), j * (float(windowWidth) / float(horizontalCellNum)));
+            square[i][j].setPosition(i * (CellDim_X), j * (CellDim_Y));
             boundingBox[i][j] = square[i][j].getGlobalBounds();
         }
     }
 
     while(window1.isOpen()) {
+
+        // evolution delay
+        sf::Time t1 = sf::seconds(0.10);
+        sf::sleep(t1);
 
         bool pausedGame = false;
         while(1) {
@@ -87,8 +96,8 @@ int main()
         }        
          
         
-        sf::Time t1 = sf::seconds(0.25);
-        sf::sleep(t1);
+        // sf::Time t1 = sf::seconds(0.15);
+        // sf::sleep(t1);
         
         int cellCount = 0;
         int count[horizontalCellNum][verticaCellNum];

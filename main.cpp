@@ -14,7 +14,7 @@ int main()
     const int verticaCellNum = 60;
     // windowWidth / horizontalCellNum = windowHeight / verticalCellNum = constant --> 1200 / horizontalCellNum = 800 / verticalCellNum --> if one of these two numbers is given, the other is automatically set.
     // --> 1200/800 * given verticalCellNum = horizontalCellNum, try whit integer until result is integer. Only works if the given value meets 800 % vCN --> 1200 % hCN = 0.
-    // Dividers of 800 --> 1, 2, 4, 5, 8, 10, 16, 20, 25, 32, 40, 50, 80, 100, 160, 200, 400 y 800. Why does not work using this hypotesis?
+    // Dividers of 800 --> 1, 2, 4, 5, 8, 10, 16, 20, 25, 32, 40, 50, 80, 100, 160, 200, 400 y 800. Why does not work using this hypotesis? Revisarlo en papel luego.
     const float CellDim_X = static_cast<float>(windowWidth) / static_cast<float>(horizontalCellNum);
     const float CellDim_Y = static_cast<float>(windowHeight) / static_cast<float>(verticaCellNum);
 
@@ -68,6 +68,13 @@ int main()
                             if (boundingBox[i][j].contains(clickRight)) {
                                 square[i][j].setFillColor(sf::Color::Black);
                             }
+                        }
+                    }
+                }
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::C)) {
+                    for(int j = 0; j < verticaCellNum; j++) {
+                        for(int i = 0; i < horizontalCellNum; i++) {
+                            square[i][j].setFillColor(sf::Color::Black);
                         }
                     }
                 }

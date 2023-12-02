@@ -22,7 +22,7 @@ int main()
         for(int i = 0; i < horizontalCellNum; i++) {
             square[i][j].setSize(sf::Vector2f(CellDim_X, CellDim_Y));
             square[i][j].setFillColor(sf::Color::Black);
-            square[i][j].setOutlineThickness(-1.f);
+            square[i][j].setOutlineThickness(-0.f); //set to -1 to see the grid
             square[i][j].setOutlineColor(sf::Color(37, 80, 40));
 
             square[i][j].setPosition(i * (CellDim_X), j * (CellDim_Y));

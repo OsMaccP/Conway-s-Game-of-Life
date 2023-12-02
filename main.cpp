@@ -18,15 +18,17 @@ int main()
     
     std::array<std::array<sf::RectangleShape, verticaCellNum>, horizontalCellNum> square;
     std::array<std::array<sf::FloatRect, verticaCellNum>, horizontalCellNum> boundingBox;
-    for(int j = 0; j < verticaCellNum; j++) {
-        for(int i = 0; i < horizontalCellNum; i++) {
+    int i, j;
+    bool isAlive[horizontalCellNum][verticaCellNum]; // to use less the method .getFillColor() in logic of GoL rules
+    for(j = 0; j < verticaCellNum; j++) {
+        for(i = 0; i < horizontalCellNum; i++) {
             square[i][j].setSize(sf::Vector2f(CellDim_X, CellDim_Y));
             square[i][j].setFillColor(sf::Color::Black);
             square[i][j].setOutlineThickness(-0.f); //set to -1 to see the grid
             square[i][j].setOutlineColor(sf::Color(37, 80, 40));
 
             square[i][j].setPosition(i * (CellDim_X), j * (CellDim_Y));
-            boundingBox[i][j] = square[i][j].getGlobalBounds();
+            isAlive[i][j] = false;
         }
     }
 
@@ -50,23 +52,19 @@ int main()
             }
             if(sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
                 sf::Vector2f clickLeft = sf::Vector2f(sf::Mouse::getPosition(window1));
-                for(int j = 0; j < verticaCellNum; j++) {
-                    for(int i = 0; i < horizontalCellNum; i++) {
-                        if(boundingBox[i][j].contains(clickLeft)) {
-                            square[i][j].setFillColor(sf::Color::White);
-                        }
-                    }
-                }
-            }    
+                // don't iterate over all cells based on click position
+                int x = static_cast<int>(clickLeft.x / CellDim_X);
+                int y = static_cast<int>(clickLeft.y / CellDim_Y);
+                square[x][y].setFillColor(sf::Color::White);
+                isAlive[x][y] = true;
+            }
             else if(sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
                 sf::Vector2f clickRight = sf::Vector2f(sf::Mouse::getPosition(window1));
-                for(int j = 0; j < verticaCellNum; j++) {
-                    for(int i = 0; i < horizontalCellNum; i++) {
-                        if (boundingBox[i][j].contains(clickRight)) {
-                            square[i][j].setFillColor(sf::Color::Black);
-                        }
-                    }
-                }
+                // don't iterate over all cells based on click position
+                int x = static_cast<int>(clickRight.x / CellDim_X);
+                int y = static_cast<int>(clickRight.y / CellDim_Y);
+                square[x][y].setFillColor(sf::Color::Black);
+                isAlive[x][y] = false;
             }
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::C)) {
                 generation = 0;
@@ -74,6 +72,7 @@ int main()
                 for(int j = 0; j < verticaCellNum; j++) {
                     for(int i = 0; i < horizontalCellNum; i++) {
                         square[i][j].setFillColor(sf::Color::Black);
+                        isAlive[i][j] = false;
                     }
                 }
             }
@@ -103,160 +102,154 @@ int main()
                 for(int i = 0; i < horizontalCellNum; i++) {
                     isChanged[i][j] = false;
                     count[i][j] = 0;
-    
+
                     //for death cells
-                    if(square[i][j].getFillColor() == sf::Color::Black) {
+                    if(!isAlive[i][j]) {
     
                         // for general case, no limits
                         if((i != 0 && i != horizontalCellNum - 1) && (j != 0 && j != verticaCellNum - 1)) {
-                            if(square[i-1][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i-1][j].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j]) {
                                 cellCount++;
                             }
-                            if(square[i-1][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j+1]) {
                                 cellCount++;
                             }
-                            if(square[i][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i][j+1]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j+1]) {
                                 cellCount++;
                             }
-    
-                            if(cellCount == 3) {
-                                count[i][j] = cellCount;
-                                isChanged[i][j] = true;
-                            }
-    
                         }
                         // left wall
                         else if(i == 0 && j != 0 && j != verticaCellNum - 1) {
-                            if(square[i][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i][j+1]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j+1]) {
                                 cellCount++;
                             }
                         }
                         // right wall
                         else if(i == horizontalCellNum - 1 && j != 0 && j != verticaCellNum -1) {
-                            if(square[i][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i][j+1]) {
                                 cellCount++;
                             }
-                            if(square[i-1][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i-1][j].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j]) {
                                 cellCount++;
                             }
-                            if(square[i-1][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j+1]) {
                                 cellCount++;
                             }
                         }
                         // ceiling
                         else if(j == 0 && i != 0 && i != horizontalCellNum -1) {
-                            if(square[i-1][j].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j]) {
                                 cellCount++;
                             }
-                            if(square[i-1][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j+1]) {
                                 cellCount++;
                             }
-                            if(square[i][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i][j+1]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j+1]) {
                                 cellCount++;
                             }
                         }
                         // floor 
                         else if(j == verticaCellNum - 1 && i != 0 && i != horizontalCellNum -1) {
-                            if(square[i-1][j].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j]) {
                                 cellCount++;
                             }
-                            if(square[i-1][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j-1]) {
                                 cellCount++;
                             }
                         }
                         // up-left corner
                         else if(i == 0 && j == 0) {
-                            if(square[i][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i][j+1]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j+1]) {
                                 cellCount++;
                             }
                         }
                         // up-right corner
                         else if(i == horizontalCellNum - 1 && j == 0) {
-                            if(square[i][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i][j+1]) {
                                 cellCount++;
                             }
-                            if(square[i-1][j].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j]) {
                                 cellCount++;
                             }
-                            if(square[i-1][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j+1]) {
                                 cellCount++;
                             }
                         }
                         // down-left corner
                         else if(i == 0 && j == verticaCellNum - 1) {
-                            if(square[i][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j]) {
                                 cellCount++;
                             }
                         }
                         // down-right corner
                         else if(i == horizontalCellNum - 1 && j == verticaCellNum - 1) {
-                            if(square[i][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i-1][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i-1][j].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j]) {
                                 cellCount++;
                             }
                         }
@@ -268,152 +261,152 @@ int main()
                     }
 
                     // for alive cells
-                    else if(square[i][j].getFillColor() == sf::Color::White) {
+                    else if(isAlive[i][j]) {
 
                         // for general case, no limits
                         if((i != 0 && i != horizontalCellNum - 1) && (j != 0 && j != verticaCellNum - 1)) {
-                            if(square[i-1][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i-1][j].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j]) {
                                 cellCount++;
                             }
-                            if(square[i-1][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j+1]) {
                                 cellCount++;
                             }
-                            if(square[i][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i][j+1]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j+1]) {
                                 cellCount++;
                             }
                         }
                         // left wall
                         else if(i == 0 && j != 0 && j != verticaCellNum - 1) {
-                            if(square[i][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i][j+1]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j+1]) {
                                 cellCount++;
                             }
                         }
                         // right wall
                         else if(i == horizontalCellNum - 1 && j != 0 && j != verticaCellNum -1) {
-                            if(square[i][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i][j+1]) {
                                 cellCount++;
                             }
-                            if(square[i-1][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i-1][j].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j]) {
                                 cellCount++;
                             }
-                            if(square[i-1][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j+1]) {
                                 cellCount++;
                             }
                         }
                         // ceiling
                         else if(j == 0 && i != 0 && i != horizontalCellNum -1) {
-                            if(square[i-1][j].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j]) {
                                 cellCount++;
                             }
-                            if(square[i-1][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j+1]) {
                                 cellCount++;
                             }
-                            if(square[i][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i][j+1]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j+1]) {
                                 cellCount++;
                             }
                         }
                         // floor 
                         else if(j == verticaCellNum - 1 && i != 0 && i != horizontalCellNum -1) {
-                            if(square[i-1][j].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j]) {
                                 cellCount++;
                             }
-                            if(square[i-1][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j-1]) {
                                 cellCount++;
                             }
                         }
                         // up-left corner
                         else if(i == 0 && j == 0) {
-                            if(square[i][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i][j+1]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j+1]) {
                                 cellCount++;
                             }
                         }
                         // up-right corner
                         else if(i == horizontalCellNum - 1 && j == 0) {
-                            if(square[i][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i][j+1]) {
                                 cellCount++;
                             }
-                            if(square[i-1][j].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j]) {
                                 cellCount++;
                             }
-                            if(square[i-1][j+1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j+1]) {
                                 cellCount++;
                             }
                         }
                         // down-left corner
                         else if(i == 0 && j == verticaCellNum - 1) {
-                            if(square[i][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i+1][j].getFillColor() == sf::Color::White) {
+                            if(isAlive[i+1][j]) {
                                 cellCount++;
                             }
                         }
                         // down-right corner
                         else if(i == horizontalCellNum - 1 && j == verticaCellNum - 1) {
-                            if(square[i][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i-1][j-1].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j-1]) {
                                 cellCount++;
                             }
-                            if(square[i-1][j].getFillColor() == sf::Color::White) {
+                            if(isAlive[i-1][j]) {
                                 cellCount++;
                             }
                         }
@@ -431,11 +424,13 @@ int main()
             // It is necessary to change all colors only after calculating the state for each cell.
             for(int j = 0; j < verticaCellNum; j++) {
                 for(int i = 0; i < horizontalCellNum; i++) {
-                    if (count[i][j] == 3 && isChanged[i][j] == true) {
+                    if (count[i][j] == 3 && isChanged[i][j]) {
                             square[i][j].setFillColor(sf::Color::White);
+                            isAlive[i][j] = true;
                     }
-                    if ((count[i][j] < 2 || count[i][j] > 3) && isChanged[i][j] == true) {
+                    if ((count[i][j] < 2 || count[i][j] > 3) && isChanged[i][j]) {
                             square[i][j].setFillColor(sf::Color::Black);
+                            isAlive[i][j] = false;
                     }
                 }
             }

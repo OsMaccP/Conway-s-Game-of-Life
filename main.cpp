@@ -17,7 +17,6 @@ int main()
     const float CellDim_Y = static_cast<float>(windowHeight) / static_cast<float>(verticaCellNum);
     
     std::array<std::array<sf::RectangleShape, verticaCellNum>, horizontalCellNum> square;
-    std::array<std::array<sf::FloatRect, verticaCellNum>, horizontalCellNum> boundingBox;
     int i, j;
     bool isAlive[horizontalCellNum][verticaCellNum]; // to use less the method .getFillColor() in logic of GoL rules
     for(j = 0; j < verticaCellNum; j++) {

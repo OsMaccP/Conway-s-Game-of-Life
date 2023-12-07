@@ -1,2 +1,2 @@
-#.o
+# Ignore .o files
 *.o
